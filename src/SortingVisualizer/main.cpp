@@ -1,5 +1,5 @@
-#include <Bar.hpp>
 #include <SFML/Graphics.hpp>
+#include <SortingVisualizer/Bar.hpp>
 
 int main()
 {

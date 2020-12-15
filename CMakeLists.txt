@@ -16,8 +16,8 @@ add_executable(${PROJECT_NAME})
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_sources(${PROJECT_NAME} PUBLIC
-	"src/main.cpp"
-	"src/Bar.cpp"
+	"src/SortingVisualizer/main.cpp"
+	"src/SortingVisualizer/Bar.cpp"
 )
 
 target_link_libraries(${PROJECT_NAME} sfml-graphics)
