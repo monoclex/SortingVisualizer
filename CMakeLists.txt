@@ -9,6 +9,7 @@ project(
 	LANGUAGES CXX
 )
 
+set(SFML_STATIC_LIBRARIES TRUE)
 find_package(SFML 2.5.1 COMPONENTS graphics REQUIRED)
 
 add_executable(${PROJECT_NAME}
