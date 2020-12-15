@@ -1,0 +1,10 @@
+Language: Cpp
+UseTab: Always
+TabWidth: 4
+IndentWidth: 4
+# https://stackoverflow.com/a/47026406
+AccessModifierOffset: -4
+BreakBeforeBraces: Allman
+AllowShortIfStatementsOnASingleLine: true
+IndentCaseLabels: false
+ColumnLimit: 140
