@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17.0)
+cmake_minimum_required(VERSION 3.17.4)
 
 project(
 	SortingVisualizer
@@ -9,6 +9,9 @@ project(
 	LANGUAGES CXX
 )
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 set(SFML_STATIC_LIBRARIES TRUE)
 find_package(SFML 2.5.1 COMPONENTS graphics REQUIRED)
 
@@ -17,7 +20,7 @@ add_executable(${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_sources(${PROJECT_NAME} PUBLIC
 	"src/SortingVisualizer/main.cpp"
-	"src/SortingVisualizer/Bar.cpp"
+	"src/SortingVisualizer/Display.cpp"
 )
 
 target_link_libraries(${PROJECT_NAME} sfml-graphics)
