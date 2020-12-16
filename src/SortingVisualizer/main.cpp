@@ -7,6 +7,7 @@ int main()
 	settings.antialiasingLevel = 8;
 
 	sf::RenderWindow window(sf::VideoMode(800, 600), "OpenGL", sf::Style::Default, settings);
+	window.setVerticalSyncEnabled(true);
 
 	auto display = Display(window, 10, 10);
 	for (auto value = 1; auto &i : display.bars)

@@ -13,9 +13,18 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(SFML_STATIC_LIBRARIES TRUE)
+if(WIN32)
+	set(SFML_USE_STATIC_STD_LIBS TRUE)
+endif()
 find_package(SFML 2.5.1 COMPONENTS graphics REQUIRED)
 
 add_executable(${PROJECT_NAME})
+
+if(MSVC)
+	set_property(TARGET ${PROJECT_NAME} PROPERTY
+		MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"
+	)
+endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_sources(${PROJECT_NAME} PUBLIC
