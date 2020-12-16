@@ -1,5 +1,5 @@
 # Workflow loosely inspired by https://cristianadam.eu/20191222/using-github-actions-with-c-plus-plus-and-cmake/
-# but ended up drifting far from it.
+# but ended up drifting very, very far from it.
 
 name: Nightly Build
 
@@ -13,24 +13,23 @@ jobs:
   # I opted to use two separate builds, because for my use-case, I feel that it makes things clearer.
   # Otherwise, you have to wade through platform specific steps for windows and linux and it just gets hairy.
   linux:
-    # Instead of using `ubuntu-latest` and waiting for Github Actions to rollover,
-    # we can clean up some plumbing work by jumping board to the latest version.
-    # `ubuntu-20.04` features CMake 3.19.1 (a modern version), and GCC 10 (a C++20 compiler)
-    # which is exactly what we need. Thus, we can skip a lot of the boilerplate in Cristian Adam's article.
-
+    # I would cache the SFML build on Linux, but it's just simply not worth it. Dependencies/libraries
+    # are thrown all over the place in /usr, and caching the entire folder makes the action take too long,
+    # and granualarly caching what gets written to disk is too much to maintain.
+    #
+    # Maybe if Github Actions would cache layers of jobs ran in containers (see: jobs.<id>.container)
+    # then it'd be worth it to cache it, but otherwise, oh well. It's still faster than the windows build anyways.
     name: Linux Build
     runs-on: ubuntu-20.04
     steps:
       # SortingVisualizer statically links against SFML. Say what you want, but I prefer distributing a single binary.
       # Because of this, instead of just installing `libsfml-dev`, we have to build it from source to support static linking.
       - name: Build SFML
+        # OpenGL deps: via trial and error, and partially https://stackoverflow.com/a/14966717
+        # SFML deps: https://www.sfml-dev.org/tutorials/2.5/compile-with-cmake.php and https://medium.com/@Rewieer/install-sfml-2-5-1-on-ubuntu-18-04-and-clion-9e0dfe86e87f
         run: |
-          # install opengl/x11 crud - see https://medium.com/@Plimsky/how-to-install-a-opengl-environment-on-ubuntu-e3918cf5ab6c
-          # install sfml dependencies - see https://www.sfml-dev.org/tutorials/2.5/compile-with-cmake.php and https://medium.com/@Rewieer/install-sfml-2-5-1-on-ubuntu-18-04-and-clion-9e0dfe86e87f
-
           echo y | sudo apt-fast install \
-            libx11-dev xorg-dev libglu1-mesa-dev freeglut3-dev libglew1.5 libglew1.5-dev libglu1-mesa libglu1-mesa-dev libgl1-mesa-glx \
-            libgl1-mesa-dev \
+            libxcursor-dev mesa-common-dev \
             libfreetype6-dev libxrandr-dev libudev-dev libogg-dev libflac-dev libvorbis-dev libopenal-dev
 
           # build SFML from source
@@ -57,14 +56,25 @@ jobs:
       - name: Upload Build
         uses: actions/upload-artifact@v2.2.1
         with:
-          name: linux.zip
+          name: linux
           path: ${{ github.workspace }}/build/SortingVisualizer
 
   windows:
     name: Windows Build
     runs-on: windows-latest
     steps:
+      # A majority of the time spent is primarily due to building SFML
+      # On windows, the final SFML build is all stored in C:\Program Files (x86)\SFML
+      # The only thing we have to cache is that directory, and actions/cache takes care of the rest
+      - name: Cache SFML Build
+        id: cache-sfml
+        uses: actions/cache@v2.1.3
+        with:
+          path: C:\Program Files (x86)\SFML
+          key: sfml
+
       - name: Build SFML
+        if: steps.cache-sfml.outputs.cache-hit != 'true'
         run: |
           git clone https://github.com/SFML/SFML --depth 1
           pushd SFML
@@ -88,5 +98,5 @@ jobs:
       - name: Upload Build
         uses: actions/upload-artifact@v2.2.1
         with:
-          name: windows.zip
+          name: windows
           path: ${{ github.workspace }}\build\Release\SortingVisualizer.exe
