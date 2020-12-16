@@ -1,0 +1,92 @@
+# Workflow loosely inspired by https://cristianadam.eu/20191222/using-github-actions-with-c-plus-plus-and-cmake/
+# but ended up drifting far from it.
+
+name: Nightly Build
+
+on: [push, pull_request]
+
+# Github action workers have 2 cores, let's use them while building!
+env:
+  CMAKE_BUILD_PARALLEL_LEVEL: 2
+
+jobs:
+  # I opted to use two separate builds, because for my use-case, I feel that it makes things clearer.
+  # Otherwise, you have to wade through platform specific steps for windows and linux and it just gets hairy.
+  linux:
+    # Instead of using `ubuntu-latest` and waiting for Github Actions to rollover,
+    # we can clean up some plumbing work by jumping board to the latest version.
+    # `ubuntu-20.04` features CMake 3.19.1 (a modern version), and GCC 10 (a C++20 compiler)
+    # which is exactly what we need. Thus, we can skip a lot of the boilerplate in Cristian Adam's article.
+
+    name: Linux Build
+    runs-on: ubuntu-20.04
+    steps:
+      # SortingVisualizer statically links against SFML. Say what you want, but I prefer distributing a single binary.
+      # Because of this, instead of just installing `libsfml-dev`, we have to build it from source to support static linking.
+      - name: Build SFML
+        run: |
+          # install opengl/x11 crud - see https://medium.com/@Plimsky/how-to-install-a-opengl-environment-on-ubuntu-e3918cf5ab6c
+          # install sfml dependencies - see https://www.sfml-dev.org/tutorials/2.5/compile-with-cmake.php and https://medium.com/@Rewieer/install-sfml-2-5-1-on-ubuntu-18-04-and-clion-9e0dfe86e87f
+
+          echo y | sudo apt-fast install \
+            libx11-dev xorg-dev libglu1-mesa-dev freeglut3-dev libglew1.5 libglew1.5-dev libglu1-mesa libglu1-mesa-dev libgl1-mesa-glx \
+            libgl1-mesa-dev \
+            libfreetype6-dev libxrandr-dev libudev-dev libogg-dev libflac-dev libvorbis-dev libopenal-dev
+
+          # build SFML from source
+          git clone https://github.com/SFML/SFML --depth 1
+          pushd SFML
+            cmake -B build -DBUILD_SHARED_LIBS=FALSE
+            cmake --build build --config Release
+            sudo cmake --install build --config Release
+          popd
+          rm -rf SFML
+
+      - name: Checkout Source
+        uses: actions/checkout@v2.3.4
+
+      - name: Build Project
+        run: |
+          cmake -B build
+          cmake --build build --config Release --
+          cmake --install build --config Release
+          strip '${{ github.workspace }}/build/SortingVisualizer'
+
+      # Github Actions will always zip artifacts by default, so there's no point going through the effort
+      # of making a tar archive of the build.
+      - name: Upload Build
+        uses: actions/upload-artifact@v2.2.1
+        with:
+          name: linux.zip
+          path: ${{ github.workspace }}/build/SortingVisualizer
+
+  windows:
+    name: Windows Build
+    runs-on: windows-latest
+    steps:
+      - name: Build SFML
+        run: |
+          git clone https://github.com/SFML/SFML --depth 1
+          pushd SFML
+            cmake -B build -DSFML_USE_STATIC_STD_LIBS=TRUE -DBUILD_SHARED_LIBS=FALSE
+            cmake --build build --config Release
+            cmake --install build --config Release
+          popd
+          rm -Recurse -Force SFML
+
+      - name: Checkout Source
+        uses: actions/checkout@v2.3.4
+
+      - name: Build Project
+        run: |
+          cmake -B build
+          cmake --build build --config Release
+          cmake --install build --config Release
+
+      # Github Actions will always zip artifacts by default, so there's no point going through the effort
+      # of making a tar archive of the build.
+      - name: Upload Build
+        uses: actions/upload-artifact@v2.2.1
+        with:
+          name: windows.zip
+          path: ${{ github.workspace }}\build\Release\SortingVisualizer.exe
