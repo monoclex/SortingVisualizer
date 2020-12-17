@@ -24,6 +24,7 @@ public:
 	CollectionItem(uint64_t value);
 
 	Comparison compare(CollectionItem &other) const;
+	uint64_t raw();
 
 	// inline bool operator<( CollectionItem &lhs,  CollectionItem &rhs);
 	// inline bool operator>( CollectionItem &lhs,  CollectionItem &rhs) { return rhs < lhs; }
@@ -53,6 +54,8 @@ public:
 	void doParallel(std::initializer_list<std::function<void(Collection)>> parallelActions);
 	Comparison compare(std::size_t leftIdx, std::size_t rightIdx);
 	void swap(std::size_t leftIdx, std::size_t rightIdx);
+
+	std::vector<CollectionItem> raw();
 
 	CollectionItem &operator[](std::size_t idx);
 };

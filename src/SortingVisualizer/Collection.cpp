@@ -13,6 +13,8 @@ Comparison CollectionItem::compare(CollectionItem &other) const
 	return Comparison::EQUAL;
 }
 
+uint64_t CollectionItem::raw() { return this->value; }
+
 Collection::Collection(std::vector<uint64_t> values) : values()
 {
 	this->decisions = std::vector<uint8_t /*Decision*/>();
@@ -30,6 +32,8 @@ void Collection::doParallel(std::initializer_list<std::function<void(Collection)
 Comparison Collection::compare(std::size_t leftIdx, std::size_t rightIdx) { return this->values[leftIdx].compare(this->values[rightIdx]); }
 
 void Collection::swap(std::size_t leftIdx, std::size_t rightIdx) { std::swap(this->values[leftIdx], this->values[rightIdx]); }
+
+std::vector<CollectionItem> Collection::raw() { return this->values; }
 
 CollectionItem &Collection::operator[](std::size_t idx) { return this->values[idx]; }
 

@@ -1,6 +1,7 @@
+#include <SortingVisualizer/Algorithms/BubbleSort.hpp>
 #include <SortingVisualizer/Collection.hpp>
 
-const void bubbleSort(Collection collection)
+const void bubbleSort(Collection &collection)
 {
 	for (auto i = 0; i < collection.length(); i++)
 	{

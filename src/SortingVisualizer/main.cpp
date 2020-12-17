@@ -1,6 +1,8 @@
 #include <SFML/Graphics.hpp>
+#include <SortingVisualizer/Algorithms/BubbleSort.hpp>
 #include <SortingVisualizer/Collection.hpp>
 #include <SortingVisualizer/Display.hpp>
+#include <iostream>
 
 int main()
 {
@@ -21,6 +23,8 @@ int main()
 		++value;
 	}
 
+	auto frames = 0;
+
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -36,6 +40,23 @@ int main()
 		}
 
 		window.clear();
+
+		frames++;
+		if (frames == 200)
+		{
+			std::cout << "bubble sorting" << std::endl;
+			bubbleSort(collection);
+			std::cout << "bubble sroted, ";
+			auto r = std::vector<uint64_t>();
+			for (auto &i : collection.raw())
+			{
+				r.push_back(i.raw());
+				std::cout << i.raw();
+			}
+			std::cout << std::endl;
+			display.bars = r;
+		}
+
 		display.draw();
 
 		// end the current frame
