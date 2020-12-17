@@ -29,7 +29,9 @@ endif()
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_sources(${PROJECT_NAME} PUBLIC
 	"src/SortingVisualizer/main.cpp"
+	"src/SortingVisualizer/Collection.cpp"
 	"src/SortingVisualizer/Display.cpp"
+	"src/SortingVisualizer/Algorithms/BubbleSort.cpp"
 )
 
 target_link_libraries(${PROJECT_NAME} sfml-graphics)

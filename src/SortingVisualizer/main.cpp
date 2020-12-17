@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <SortingVisualizer/Collection.hpp>
 #include <SortingVisualizer/Display.hpp>
 
 int main()
@@ -9,10 +10,14 @@ int main()
 	sf::RenderWindow window(sf::VideoMode(800, 600), "OpenGL", sf::Style::Default, settings);
 	window.setVerticalSyncEnabled(true);
 
+	auto items = std::vector<uint64_t>{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+	std::random_shuffle(items.begin(), items.end());
+	auto collection = Collection(items);
+
 	auto display = Display(window, 10, 10);
-	for (auto value = 1; auto &i : display.bars)
+	for (auto value = 0; auto &i : display.bars)
 	{
-		i = value;
+		i = items[value];
 		++value;
 	}
 
