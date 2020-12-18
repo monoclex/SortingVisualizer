@@ -7,23 +7,14 @@
 int main()
 {
 	sf::ContextSettings settings;
-	settings.antialiasingLevel = 8;
+	settings.antialiasingLevel = 16;
 
-	sf::RenderWindow window(sf::VideoMode(800, 600), "OpenGL", sf::Style::Default, settings);
+	sf::RenderWindow window(sf::VideoMode(800, 600), "Sorting Visualizer", sf::Style::Default, settings);
+	window.setActive(false);
 	window.setVerticalSyncEnabled(true);
 
-	auto items = std::vector<uint64_t>{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-	std::random_shuffle(items.begin(), items.end());
-	auto collection = Collection(items);
-
-	auto display = Display(window, 10, 10);
-	for (auto value = 0; auto &i : display.bars)
-	{
-		i = items[value];
-		++value;
-	}
-
-	auto frames = 0;
+	Collection collection(10);
+	Display display(window, collection);
 
 	while (window.isOpen())
 	{
@@ -41,25 +32,9 @@ int main()
 
 		window.clear();
 
-		frames++;
-		if (frames == 200)
-		{
-			std::cout << "bubble sorting" << std::endl;
-			bubbleSort(collection);
-			std::cout << "bubble sroted, ";
-			auto r = std::vector<uint64_t>();
-			for (auto &i : collection.raw())
-			{
-				r.push_back(i.raw());
-				std::cout << i.raw();
-			}
-			std::cout << std::endl;
-			display.bars = r;
-		}
-
+		collection.randomize();
 		display.draw();
 
-		// end the current frame
 		window.display();
 	}
 

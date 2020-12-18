@@ -7,57 +7,46 @@
 #include <variant>
 #include <vector>
 
-enum class Comparison
+enum class Order
 {
 	LESS_THAN,
 	GREATER_THAN,
 	EQUAL
 };
 
-class CollectionItem
+// https://stackoverflow.com/a/64018031
+struct Comparison
 {
-private:
-	uint64_t value;
-	// std::vector<Decision> &parentDecisions;
-
-public:
-	CollectionItem(uint64_t value);
-
-	Comparison compare(CollectionItem &other) const;
-	uint64_t raw();
-
-	// inline bool operator<( CollectionItem &lhs,  CollectionItem &rhs);
-	// inline bool operator>( CollectionItem &lhs,  CollectionItem &rhs) { return rhs < lhs; }
-	// inline bool operator<=( CollectionItem &lhs,  CollectionItem &rhs) { return !(lhs > rhs); }
-	// inline bool operator>=( CollectionItem &lhs,  CollectionItem &rhs) { return !(lhs < rhs); }
+	std::size_t leftIdx;
+	std::size_t rightIdx;
 };
 
-// https://stackoverflow.com/a/64018031
-// struct Comparison
-// {
-// 	std::size_t leftIdx;
-// 	std::size_t rightIdx;
-// };
+struct Swap
+{
+	std::size_t leftIdx;
+	std::size_t rightIdx;
+};
 
-// using Decision = std::variant<Comparison>;
+using Decision = std::variant<Comparison, Swap>;
 
 class Collection
 {
 private:
-	std::vector<CollectionItem> values;
-	std::vector<uint8_t /*Decision*/> decisions;
+	std::vector<uint64_t> values;
+	std::vector<Decision> decisions;
 
 public:
 	Collection(std::vector<uint64_t> values);
+	Collection(std::size_t valueCount);
 
-	std::size_t length() const;
+	const std::size_t length() const;
+	const uint64_t max() const;
 	void doParallel(std::initializer_list<std::function<void(Collection)>> parallelActions);
-	Comparison compare(std::size_t leftIdx, std::size_t rightIdx);
+	Order compare(std::size_t leftIdx, std::size_t rightIdx);
 	void swap(std::size_t leftIdx, std::size_t rightIdx);
+	void randomize();
 
-	std::vector<CollectionItem> raw();
-
-	CollectionItem &operator[](std::size_t idx);
+	std::vector<uint64_t> contents() const;
 };
 
 #endif

@@ -4,38 +4,46 @@
 #include <stdint.h>
 #include <vector>
 
-CollectionItem::CollectionItem(uint64_t value) { this->value = value; }
+Collection::Collection(std::vector<uint64_t> values) : values(values) { this->decisions = std::vector<Decision>(); }
 
-Comparison CollectionItem::compare(CollectionItem &other) const
+Collection::Collection(std::size_t valueCount) : values()
 {
-	if (this->value < other.value) return Comparison::LESS_THAN;
-	if (this->value > other.value) return Comparison::GREATER_THAN;
-	return Comparison::EQUAL;
-}
+	this->values.reserve(valueCount);
 
-uint64_t CollectionItem::raw() { return this->value; }
-
-Collection::Collection(std::vector<uint64_t> values) : values()
-{
-	this->decisions = std::vector<uint8_t /*Decision*/>();
-
-	for (auto &value : values)
+	for (auto i = 1; i <= valueCount; i++)
 	{
-		this->values.push_back(CollectionItem(value));
+		this->values.push_back(i);
 	}
 }
 
-std::size_t Collection::length() const { return this->values.size(); }
+const std::size_t Collection::length() const { return this->values.size(); }
 
 void Collection::doParallel(std::initializer_list<std::function<void(Collection)>> parallelActions) {}
 
-Comparison Collection::compare(std::size_t leftIdx, std::size_t rightIdx) { return this->values[leftIdx].compare(this->values[rightIdx]); }
+Order Collection::compare(std::size_t leftIdx, std::size_t rightIdx)
+{
+	this->decisions.push_back(Comparison{leftIdx, rightIdx});
 
-void Collection::swap(std::size_t leftIdx, std::size_t rightIdx) { std::swap(this->values[leftIdx], this->values[rightIdx]); }
+	auto left = this->values[leftIdx];
+	auto right = this->values[rightIdx];
 
-std::vector<CollectionItem> Collection::raw() { return this->values; }
+	if (left < right) return Order::LESS_THAN;
+	if (left > right) return Order::GREATER_THAN;
+	return Order::EQUAL;
+}
 
-CollectionItem &Collection::operator[](std::size_t idx) { return this->values[idx]; }
+void Collection::swap(std::size_t leftIdx, std::size_t rightIdx)
+{
+	this->decisions.push_back(Swap{leftIdx, rightIdx});
+
+	std::swap(this->values[leftIdx], this->values[rightIdx]);
+}
+
+const uint64_t Collection::max() const { return *std::max_element(this->values.begin(), this->values.end()); }
+
+std::vector<uint64_t> Collection::contents() const { return this->values; }
+
+void Collection::randomize() { std::random_shuffle(this->values.begin(), this->values.end()); }
 
 //  std::size_t length() ;
 //  void doParallel(std::initializer_list<std::function<void(Collection)>> parallelActions) ;

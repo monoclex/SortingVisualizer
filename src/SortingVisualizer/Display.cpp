@@ -1,18 +1,19 @@
 #include <SFML/Graphics/RectangleShape.hpp>
+#include <SortingVisualizer/Collection.hpp>
 #include <SortingVisualizer/Display.hpp>
+#include <algorithm>
 #include <iostream>
 #include <stdint.h>
 
-Display::Display(sf::RenderTarget &renderTarget, size_t barAmount, uint64_t maxBarValue) : renderTarget(renderTarget)
+Display::Display(sf::RenderTarget &renderTarget, Collection &collection)
+	: renderTarget(renderTarget), collection(collection), maxBarValue(collection.max())
 {
-	this->bars = std::vector<uint64_t>(barAmount);
-	this->maxBarValue = maxBarValue;
 }
 
-void Display::draw() const
+void Display::draw()
 {
 	auto size = this->renderTarget.getSize();
-	auto barCount = (float)this->bars.size();
+	auto barCount = (float)this->collection.length();
 
 	// when we draw the bars, we want each bar to have one pixel of spacing inbetween each other,
 	// and one pixel of spacing at the start and the end
@@ -21,7 +22,7 @@ void Display::draw() const
 	auto pixelsOfBoxes = size.x - pixelsOfSpacing;
 	auto barWidth = pixelsOfBoxes / barCount;
 
-	for (auto i = 0; auto bar : this->bars)
+	for (auto i = 0; auto bar : this->collection.contents())
 	{
 		auto barX = spacing + i * (barWidth + spacing);
 		auto barY = (float)bar / (float)maxBarValue * size.y;

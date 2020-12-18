@@ -7,9 +7,7 @@ const void bubbleSort(Collection &collection)
 	{
 		for (auto j = i; j < collection.length(); j++)
 		{
-			auto comparison = collection.compare(i, j);
-
-			if (comparison == Comparison::GREATER_THAN)
+			if (collection.compare(i, j) == Order::GREATER_THAN)
 			{
 				collection.swap(i, j);
 			}
