@@ -11,6 +11,26 @@
 #include <thread>
 #include <tuple>
 
+void handleSingleDecision(SingleDecision &decision, std::vector<Bar> &bars, std::vector<std::size_t> &coloredBars)
+{
+	if (std::holds_alternative<Swap>(decision))
+	{
+		auto swap = std::get<Swap>(decision);
+		bars[swap.leftIdx].color = bars[swap.rightIdx].color = sf::Color::Red;
+		coloredBars.push_back(swap.leftIdx);
+		coloredBars.push_back(swap.rightIdx);
+
+		std::swap(bars[swap.leftIdx], bars[swap.rightIdx]);
+	}
+	else if (std::holds_alternative<Comparison>(decision))
+	{
+		auto cmp = std::get<Comparison>(decision);
+		bars[cmp.leftIdx].color = bars[cmp.rightIdx].color = sf::Color::Cyan;
+		coloredBars.push_back(cmp.leftIdx);
+		coloredBars.push_back(cmp.rightIdx);
+	}
+}
+
 void sorter(std::tuple<Collection *, Display *> container)
 {
 	auto collectionPtr = std::get<0>(container);
@@ -27,33 +47,29 @@ void sorter(std::tuple<Collection *, Display *> container)
 
 	for (auto &decision : collection.getDecisions())
 	{
-		if (std::holds_alternative<Swap>(decision))
+		std::vector<std::size_t> coloredBars;
+
+		if (std::holds_alternative<std::vector<SingleDecision>>(decision))
 		{
-			auto swap = std::get<Swap>(decision);
+			auto decisions = std::get<std::vector<SingleDecision>>(decision);
 
-			bars[swap.leftIdx].color = sf::Color::Red;
-			bars[swap.rightIdx].color = sf::Color::Red;
-
-			std::swap(bars[swap.leftIdx], bars[swap.rightIdx]);
-
-			display.setBars(bars);
-			std::this_thread::sleep_for(std::chrono::milliseconds(16 * 2));
-
-			bars[swap.leftIdx].color = sf::Color::White;
-			bars[swap.rightIdx].color = sf::Color::White;
+			for (auto &d : decisions)
+			{
+				handleSingleDecision(d, bars, coloredBars);
+			}
 		}
-		else if (std::holds_alternative<Comparison>(decision))
+		else if (std::holds_alternative<SingleDecision>(decision))
 		{
-			auto cmp = std::get<Comparison>(decision);
+			auto d = std::get<SingleDecision>(decision);
+			handleSingleDecision(d, bars, coloredBars);
+		}
 
-			bars[cmp.leftIdx].color = sf::Color::Cyan;
-			bars[cmp.rightIdx].color = sf::Color::Cyan;
+		display.setBars(bars);
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-			display.setBars(bars);
-			std::this_thread::sleep_for(std::chrono::milliseconds(16));
-
-			bars[cmp.leftIdx].color = sf::Color::White;
-			bars[cmp.rightIdx].color = sf::Color::White;
+		for (auto &idx : coloredBars)
+		{
+			bars[idx].color = sf::Color::White;
 		}
 	}
 }
