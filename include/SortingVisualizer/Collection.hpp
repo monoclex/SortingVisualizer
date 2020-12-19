@@ -32,6 +32,7 @@ using Decision = std::variant<Comparison, Swap>;
 class Collection
 {
 private:
+	std::vector<uint64_t> initialValues;
 	std::vector<uint64_t> values;
 	std::vector<Decision> decisions;
 
@@ -45,6 +46,7 @@ public:
 	Order compare(std::size_t leftIdx, std::size_t rightIdx);
 	void swap(std::size_t leftIdx, std::size_t rightIdx);
 	void randomize();
+	const std::vector<Decision> &getDecisions() const;
 
 	std::vector<uint64_t> contents() const;
 };

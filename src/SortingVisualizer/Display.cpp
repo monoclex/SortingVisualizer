@@ -3,17 +3,19 @@
 #include <SortingVisualizer/Display.hpp>
 #include <algorithm>
 #include <iostream>
+#include <memory>
 #include <stdint.h>
 
 Display::Display(sf::RenderTarget &renderTarget, Collection &collection)
-	: renderTarget(renderTarget), collection(collection), maxBarValue(collection.max())
+	: renderTarget(renderTarget), bars(std::make_shared<std::vector<uint64_t>>(collection.contents())), maxBarValue(collection.max())
 {
 }
 
 void Display::draw()
 {
+	auto bars = *this->bars.get();
 	auto size = this->renderTarget.getSize();
-	auto barCount = (float)this->collection.length();
+	auto barCount = (float)bars.size();
 
 	// when we draw the bars, we want each bar to have one pixel of spacing inbetween each other,
 	// and one pixel of spacing at the start and the end
@@ -22,7 +24,7 @@ void Display::draw()
 	auto pixelsOfBoxes = size.x - pixelsOfSpacing;
 	auto barWidth = pixelsOfBoxes / barCount;
 
-	for (auto i = 0; auto bar : this->collection.contents())
+	for (auto i = 0; auto bar : bars)
 	{
 		auto barX = spacing + i * (barWidth + spacing);
 		auto barY = (float)bar / (float)maxBarValue * size.y;
@@ -37,3 +39,5 @@ void Display::draw()
 		++i;
 	}
 }
+
+void Display::setBars(std::vector<uint64_t> bars) { *this->bars.get() = bars; }

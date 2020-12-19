@@ -45,6 +45,8 @@ std::vector<uint64_t> Collection::contents() const { return this->values; }
 
 void Collection::randomize() { std::random_shuffle(this->values.begin(), this->values.end()); }
 
+const std::vector<Decision> &Collection::getDecisions() const { return this->decisions; }
+
 //  std::size_t length() ;
 //  void doParallel(std::initializer_list<std::function<void(Collection)>> parallelActions) ;
 
