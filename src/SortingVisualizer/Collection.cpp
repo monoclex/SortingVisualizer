@@ -1,6 +1,7 @@
 
 #include <SortingVisualizer/Collection.hpp>
 #include <algorithm>
+#include <random>
 #include <stdint.h>
 #include <vector>
 
@@ -43,7 +44,7 @@ const uint64_t Collection::max() const { return *std::max_element(this->values.b
 
 std::vector<uint64_t> Collection::contents() const { return this->values; }
 
-void Collection::randomize() { std::random_shuffle(this->values.begin(), this->values.end()); }
+void Collection::randomize() { std::shuffle(this->values.begin(), this->values.end(), std::mt19937(std::random_device()())); }
 
 const std::vector<Decision> &Collection::getDecisions() const { return this->decisions; }
 
