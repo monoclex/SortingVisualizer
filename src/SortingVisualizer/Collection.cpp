@@ -1,5 +1,7 @@
 
 #include <SortingVisualizer/Collection.hpp>
+#include <algorithm>
+#include <stdexcept>
 
 Collection::Collection(std::vector<uint64_t> values) : values(values), decisions() {}
 

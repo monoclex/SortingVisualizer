@@ -8,6 +8,7 @@
 #include <chrono>
 #include <memory>
 #include <random>
+#include <stdexcept>
 #include <thread>
 #include <tuple>
 
