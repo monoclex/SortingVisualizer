@@ -1,4 +1,5 @@
 #include <SFML/Graphics/RectangleShape.hpp>
+#include <SortingVisualizer/Bar.hpp>
 #include <SortingVisualizer/Collection.hpp>
 #include <SortingVisualizer/Display.hpp>
 #include <algorithm>
@@ -7,7 +8,7 @@
 #include <stdint.h>
 
 Display::Display(sf::RenderTarget &renderTarget, Collection &collection)
-	: renderTarget(renderTarget), bars(std::make_shared<std::vector<uint64_t>>(collection.contents())), maxBarValue(collection.max())
+	: renderTarget(renderTarget), bars(std::make_shared<std::vector<Bar>>(toBars(collection.contents()))), maxBarValue(collection.max())
 {
 }
 
@@ -27,12 +28,12 @@ void Display::draw()
 	for (auto i = 0; auto bar : bars)
 	{
 		auto barX = spacing + i * (barWidth + spacing);
-		auto barY = (float)bar / (float)maxBarValue * size.y;
+		auto barY = (float)bar.value / (float)maxBarValue * size.y;
 
 		sf::RectangleShape rectangle;
 		rectangle.setPosition(barX, size.y - barY);
 		rectangle.setSize(sf::Vector2f(barWidth, barY));
-		rectangle.setFillColor(sf::Color::Green);
+		rectangle.setFillColor(bar.color);
 
 		this->renderTarget.draw(rectangle);
 
@@ -40,4 +41,4 @@ void Display::draw()
 	}
 }
 
-void Display::setBars(std::vector<uint64_t> bars) { *this->bars.get() = bars; }
+void Display::setBars(std::vector<Bar> bars) { *this->bars.get() = bars; }

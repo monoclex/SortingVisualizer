@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <SortingVisualizer/Algorithms/BubbleSort.hpp>
+#include <SortingVisualizer/Bar.hpp>
 #include <SortingVisualizer/Collection.hpp>
 #include <SortingVisualizer/Display.hpp>
 #include <chrono>
@@ -19,7 +20,7 @@ void sorter(std::tuple<Collection *, Display *> container)
 	auto collection = *collectionPtr;
 	auto display = *displayPtr;
 
-	auto bars = collection.contents();
+	auto bars = toBars(collection.contents());
 	bubbleSort(collection);
 
 	for (auto &decision : collection.getDecisions())
@@ -27,11 +28,31 @@ void sorter(std::tuple<Collection *, Display *> container)
 		if (std::holds_alternative<Swap>(decision))
 		{
 			auto swap = std::get<Swap>(decision);
-			std::swap(bars[swap.leftIdx], bars[swap.rightIdx]);
-			display.setBars(bars);
-		}
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(16));
+			bars[swap.leftIdx].color = sf::Color::Red;
+			bars[swap.rightIdx].color = sf::Color::Red;
+
+			std::swap(bars[swap.leftIdx], bars[swap.rightIdx]);
+
+			display.setBars(bars);
+			std::this_thread::sleep_for(std::chrono::milliseconds(16 * 2));
+
+			bars[swap.leftIdx].color = sf::Color::White;
+			bars[swap.rightIdx].color = sf::Color::White;
+		}
+		else if (std::holds_alternative<Comparison>(decision))
+		{
+			auto cmp = std::get<Comparison>(decision);
+
+			bars[cmp.leftIdx].color = sf::Color::Cyan;
+			bars[cmp.rightIdx].color = sf::Color::Cyan;
+
+			display.setBars(bars);
+			std::this_thread::sleep_for(std::chrono::milliseconds(16));
+
+			bars[cmp.leftIdx].color = sf::Color::White;
+			bars[cmp.rightIdx].color = sf::Color::White;
+		}
 	}
 }
 
@@ -65,7 +86,6 @@ int main()
 		{
 			if (event.type == sf::Event::Resized)
 			{
-				[[likely]]
 				// SFML views are useful in games, but for me, i'd prefer if i was dealing with everything
 				// as if it were regular window coordinates
 				window.setView(sf::View(sf::FloatRect(0.0f, 0.0f, event.size.width, event.size.height)));
@@ -83,7 +103,7 @@ int main()
 			}
 			else if (event.type == sf::Event::Closed)
 			{
-				[[unlikely]] window.close();
+				window.close();
 				exit(0);
 			}
 		}
