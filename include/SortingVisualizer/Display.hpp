@@ -6,6 +6,10 @@
 #include <memory>
 #include <stdint.h>
 
+/**
+ * Class that contains bars, and can draw the bars. It also allows setting the bars from another thread, so that
+ * the sorting and drawing are independent of one another.
+ */
 class Display
 {
 private:

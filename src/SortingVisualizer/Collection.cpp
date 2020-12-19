@@ -11,6 +11,20 @@ const uint64_t Collection::max() const { return *std::max_element(this->values.b
 
 std::vector<uint64_t> Collection::contents() const { return this->values; }
 
+////////////////////
+// TODO: CLEAN UP //
+////////////////////
+//
+// see, the joke is that i call it a "TODO" but don't plan to ever do it
+// and holy hell is this a god-class of a method
+//
+// see i could explain so much and clean up so much code but it's just way easier if i
+// just, y'know
+// ...
+// didn't :)
+//
+// have fun!
+
 std::vector<Decision> Collection::getDecisions(const std::size_t parallelWorkers) const
 {
 	std::vector<Decision> resultantDecisions;
@@ -146,7 +160,7 @@ void Collection::followThroughDecision(const SingleDecision &decision)
 	}
 	else
 	{
-		// other is a comparison we don't care about
+		// if the decision is a comparison, we don't have any bar state to update
 	}
 }
 
