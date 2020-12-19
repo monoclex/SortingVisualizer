@@ -3,9 +3,11 @@
 #include <SortingVisualizer/Bar.hpp>
 #include <SortingVisualizer/Collection.hpp>
 #include <SortingVisualizer/Display.hpp>
+#include <algorithm>
 #include <chrono>
 #include <iostream>
 #include <memory>
+#include <random>
 #include <thread>
 #include <tuple>
 
@@ -69,8 +71,14 @@ int main()
 	window.setVerticalSyncEnabled(true);
 	window.setFramerateLimit(60);
 
-	auto collection = Collection(100);
-	collection.randomize();
+	std::vector<uint64_t> values;
+	auto len = 100;
+	for (auto i = 1; i <= len; ++i)
+	{
+		values.push_back(i);
+	}
+	std::shuffle(values.begin(), values.end(), std::mt19937(std::random_device()()));
+	auto collection = Collection(values);
 
 	auto display = Display(window, collection);
 

@@ -1,6 +1,4 @@
-#ifndef SORTINGVISUALIZER_DISPLAY_H
-#define SORTINGVISUALIZER_DISPLAY_H
-
+#pragma once
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SortingVisualizer/Bar.hpp>
@@ -17,8 +15,7 @@ private:
 
 public:
 	Display(sf::RenderTarget &renderTarget, Collection &collection);
-	void draw();
-	void setBars(std::vector<Bar> bars);
-};
 
-#endif
+	void setBars(std::vector<Bar> bars);
+	void draw();
+};

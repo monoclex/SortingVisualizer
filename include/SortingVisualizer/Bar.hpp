@@ -1,6 +1,4 @@
-#ifndef SORTINGVISUALIZER_BAR_H
-#define SORTINGVISUALIZER_BAR_H
-
+#pragma once
 #include <SFML/Graphics/Color.hpp>
 #include <stdint.h>
 #include <vector>
@@ -12,5 +10,3 @@ struct Bar
 };
 
 std::vector<Bar> toBars(std::vector<uint64_t> values);
-
-#endif
