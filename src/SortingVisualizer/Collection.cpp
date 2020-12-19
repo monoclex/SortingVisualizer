@@ -29,13 +29,13 @@ std::vector<Decision> Collection::getDecisions(const std::size_t parallelWorkers
 			std::vector<std::vector<std::variant<SingleDecision, std::vector<InternalDecisions>>>> consumers;
 			consumers.reserve(parallelWorkers);
 
-			for (auto i = 0; i < parallelWorkers; i++)
+			for (auto i = 0; i < parallelConsume; i++)
 			{
 				consumers.push_back(queue.front().decisions);
 				queue.erase(queue.begin());
 			}
 
-			while (!consumers.empty() && !queue.empty())
+			while (!consumers.empty() || !queue.empty())
 			{
 				std::vector<SingleDecision> parallelDecision;
 
@@ -74,6 +74,10 @@ std::vector<Decision> Collection::getDecisions(const std::size_t parallelWorkers
 							queue.push_back(d);
 						}
 					}
+					else
+					{
+						throw std::logic_error("couldn't match on variant");
+					}
 
 					c.erase(c.begin());
 
@@ -84,13 +88,23 @@ std::vector<Decision> Collection::getDecisions(const std::size_t parallelWorkers
 					}
 				}
 
-				while (consumers.size() != parallelWorkers && !queue.empty())
+				while (consumers.size() != std::min(consumers.size() + queue.size(), parallelWorkers) && !queue.empty())
 				{
 					consumers.push_back(queue.front().decisions);
 					queue.erase(queue.begin());
 				}
 
-				resultantDecisions.push_back(parallelDecision);
+				if (parallelDecision.size() == 0)
+				{
+				}
+				else if (parallelDecision.size() == 1)
+				{
+					resultantDecisions.push_back(parallelDecision.front());
+				}
+				else
+				{
+					resultantDecisions.push_back(parallelDecision);
+				}
 			}
 		}
 	}
@@ -128,6 +142,10 @@ void Collection::followThroughDecision(const SingleDecision &decision)
 
 		std::swap(this->values[swap.leftIdx], this->values[swap.rightIdx]);
 	}
+	else
+	{
+		// other is a comparison we don't care about
+	}
 }
 
 void Collection::followThroughDecisions(const std::vector<InternalDecisions> &decisions)
@@ -145,6 +163,10 @@ void Collection::followThroughDecisions(const std::vector<InternalDecisions> &de
 			{
 				auto decisions = std::get<std::vector<InternalDecisions>>(i);
 				this->followThroughDecisions(decisions);
+			}
+			else
+			{
+				throw std::logic_error("couldn't match on variant");
 			}
 		}
 	}

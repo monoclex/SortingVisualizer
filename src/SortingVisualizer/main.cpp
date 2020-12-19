@@ -6,7 +6,6 @@
 #include <SortingVisualizer/Display.hpp>
 #include <algorithm>
 #include <chrono>
-#include <iostream>
 #include <memory>
 #include <random>
 #include <thread>
@@ -30,6 +29,10 @@ void handleSingleDecision(SingleDecision &decision, std::vector<Bar> &bars, std:
 		coloredBars.push_back(cmp.leftIdx);
 		coloredBars.push_back(cmp.rightIdx);
 	}
+	else
+	{
+		throw std::logic_error("couldn't match on variant");
+	}
 }
 
 void sorter(std::tuple<Collection *, Display *> container)
@@ -46,7 +49,7 @@ void sorter(std::tuple<Collection *, Display *> container)
 	auto bars = toBars(collection.contents());
 	quickSort(collection);
 
-	for (auto &decision : collection.getDecisions())
+	for (auto &decision : collection.getDecisions(1000))
 	{
 		std::vector<std::size_t> coloredBars;
 
@@ -64,9 +67,13 @@ void sorter(std::tuple<Collection *, Display *> container)
 			auto d = std::get<SingleDecision>(decision);
 			handleSingleDecision(d, bars, coloredBars);
 		}
+		else
+		{
+			throw std::logic_error("couldn't match on variant");
+		}
 
 		display.setBars(bars);
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 		for (auto &idx : coloredBars)
 		{
