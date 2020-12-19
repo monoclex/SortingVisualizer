@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
-#include <SortingVisualizer/Algorithms/BubbleSort.hpp>
+// #include <SortingVisualizer/Algorithms/BubbleSort.hpp>
+#include <SortingVisualizer/Algorithms/QuickSort.hpp>
 #include <SortingVisualizer/Bar.hpp>
 #include <SortingVisualizer/Collection.hpp>
 #include <SortingVisualizer/Display.hpp>
@@ -43,7 +44,7 @@ void sorter(std::tuple<Collection *, Display *> container)
 	auto display = *displayPtr;
 
 	auto bars = toBars(collection.contents());
-	bubbleSort(collection);
+	quickSort(collection);
 
 	for (auto &decision : collection.getDecisions())
 	{
@@ -65,7 +66,7 @@ void sorter(std::tuple<Collection *, Display *> container)
 		}
 
 		display.setBars(bars);
-		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
 		for (auto &idx : coloredBars)
 		{

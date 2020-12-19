@@ -13,7 +13,7 @@ std::vector<Decision> Collection::getDecisions(const std::size_t parallelWorkers
 {
 	std::vector<Decision> resultantDecisions;
 
-	for (auto &i : this->decisions.decisions)
+	for (auto i : this->decisions.decisions)
 	{
 		if (std::holds_alternative<SingleDecision>(i))
 		{
@@ -23,35 +23,41 @@ std::vector<Decision> Collection::getDecisions(const std::size_t parallelWorkers
 		}
 		else if (std::holds_alternative<std::vector<InternalDecisions>>(i))
 		{
-			auto decisions = std::get<std::vector<InternalDecisions>>(i);
-			auto parallelConsume = std::min(decisions.size(), parallelWorkers);
+			auto queue = std::get<std::vector<InternalDecisions>>(i);
+			auto parallelConsume = std::min(queue.size(), parallelWorkers);
 
 			std::vector<std::vector<std::variant<SingleDecision, std::vector<InternalDecisions>>>> consumers;
 			consumers.reserve(parallelWorkers);
 
 			for (auto i = 0; i < parallelWorkers; i++)
 			{
-				consumers.push_back(decisions.front().decisions);
-				decisions.erase(decisions.begin());
+				consumers.push_back(queue.front().decisions);
+				queue.erase(queue.begin());
 			}
 
-			while (!consumers.empty() && !decisions.empty())
+			while (!consumers.empty() && !queue.empty())
 			{
 				std::vector<SingleDecision> parallelDecision;
-				auto &queue = decisions;
 
 				for (auto i = 0; i < consumers.size(); i++)
 				{
 					auto &c = consumers[i];
 
-					auto element = c.front();
-					c.erase(c.begin());
-
 					if (c.empty())
 					{
 						consumers.erase(consumers.begin() + i);
 						--i;
+
+						if (!queue.empty())
+						{
+							consumers.push_back(queue.front().decisions);
+							queue.erase(queue.begin());
+						}
+
+						continue;
 					}
+
+					std::variant<SingleDecision, std::vector<InternalDecisions>> element = c[0];
 
 					if (std::holds_alternative<SingleDecision>(element))
 					{
@@ -63,10 +69,18 @@ std::vector<Decision> Collection::getDecisions(const std::size_t parallelWorkers
 					{
 						auto decisions = std::get<std::vector<InternalDecisions>>(element);
 
-						for (auto &d : decisions)
+						for (auto d : decisions)
 						{
 							queue.push_back(d);
 						}
+					}
+
+					c.erase(c.begin());
+
+					if (c.empty())
+					{
+						consumers.erase(consumers.begin() + i);
+						--i;
 					}
 				}
 
@@ -86,6 +100,9 @@ std::vector<Decision> Collection::getDecisions(const std::size_t parallelWorkers
 
 Order Collection::compare(std::size_t leftIdx, std::size_t rightIdx)
 {
+	if (leftIdx >= this->values.size()) throw "leftIdx out of range";
+	if (rightIdx >= this->values.size()) throw "rightIdx out of range";
+
 	this->decisions.decisions.push_back(Comparison{leftIdx, rightIdx});
 
 	auto left = this->values[leftIdx];

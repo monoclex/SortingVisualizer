@@ -33,6 +33,7 @@ target_sources(${PROJECT_NAME} PUBLIC
 	"src/SortingVisualizer/Collection.cpp"
 	"src/SortingVisualizer/Display.cpp"
 	"src/SortingVisualizer/Algorithms/BubbleSort.cpp"
+	"src/SortingVisualizer/Algorithms/QuickSort.cpp"
 )
 
 target_link_libraries(${PROJECT_NAME} sfml-graphics)
